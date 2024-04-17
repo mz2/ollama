@@ -53,9 +53,9 @@ parts:
       snap_launcher.sh: bin/snap_launcher.sh
   ollama:
     plugin: go
-    source: https://github.com/ollama/ollama.git
+    source: . # https://github.com/ollama/ollama.git
     source-type: git
-    source-tag: v0.1.30
+    # source-tag: v0.1.32
     # build packages only because ollama build copies in cudnn, cublas
     build-packages:
       - git
