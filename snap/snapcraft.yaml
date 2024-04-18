@@ -30,6 +30,8 @@ apps:
       - removable-media
       - network
       - network-bind
+      - hardware-observe
+      - log-observe
       - opengl  # grants also CUDA based GPU access
   listener:
     command: bin/snap_launcher.sh serve
