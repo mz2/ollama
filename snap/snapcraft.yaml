@@ -1,7 +1,7 @@
 ---
 name: ollama
 base: core22
-version: '0.1'  # rewritten by adopt-info & `snapcraftctl set-version` below
+version: "0.1" # rewritten by adopt-info & `snapcraftctl set-version` below
 summary: Get up and running with large language models locally.
 description: |
   Run Llama 2, Code Llama, and other models. Customize and create your own.
@@ -21,6 +21,12 @@ package-repositories:
     path: /
     key-id: EB693B3035CD5710E231E123A4B469963BF863CC
     url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64
+  - type: apt
+    formats: [deb]
+    suites: [jammy]
+    components: [main]
+    key-id: CA8BB4727A47B4D09B4EE8969386B48A1A693C5C
+    url: https://repo.radeon.com/amdgpu/6.1/ubuntu
 
 apps:
   ollama:
@@ -32,7 +38,7 @@ apps:
       - network-bind
       - hardware-observe
       - log-observe
-      - opengl  # grants also CUDA based GPU access
+      - opengl # grants also CUDA based GPU access
   listener:
     command: bin/snap_launcher.sh serve
     daemon: simple
@@ -60,6 +66,7 @@ parts:
     # source-tag: v0.1.32
     # build packages only because ollama build copies in cudnn, cublas
     build-packages:
+      - wget
       - git
       - gcc
       - cmake
@@ -74,6 +81,12 @@ parts:
       - tensorrt-dev
       - cuda-toolkit-12-3
       - nvidia-cuda-dev
+      - rocm
+      - libstdc++6
+      - libstdc++-12-dev
+      - amdgpu-dkms
+      - libclblast-dev
+      - ccache
     build-snaps:
       - go/stable
     override-pull: |
@@ -82,14 +95,11 @@ parts:
       last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
       craftctl set version="$(git describe --tags | sed 's/v//')"
     override-build: |
-      apt install ./amdgpu-install_6.1.60100-1_all.deb
-      apt update
-      apt install amdgpu-dkms
-      apt install rocm
-
-      go generate ./...
+      OLLAMA_CPU_TARGET=static go generate ./...
+      OLLAMA_CPU_TARGET=cpu go generate ./...
+      OLLAMA_CPU_TARGET=cpu_avx go generate ./...
+      OLLAMA_CPU_TARGET=cpu_avx2 go generate ./...
       craftctl default
-    build-environment:
-      - OLLAMA_CUSTOM_CPU_DEFS: "-DLLAMA_AVX=on -DLLAMA_AVX2=on -DLLAMA_AVX512=on -DLLAMA_FMA=on -DLLAMA_AVX512_VBMI=on -DLLAMA_AVX512_VNNI=on"
-      - COMMON_CPU_DEFS: "-DLLAMA_AVX=on -DLLAMA_AVX2=on -DLLAMA_AVX512=on -DLLAMA_FMA=on -DLLAMA_AVX512_VBMI=on -DLLAMA_AVX512_VNNI=on"
-      - OLLAMA_CPU_TARGET: "cpu cpu_avx cpu_avx2"
+    # build-environment:
+    # - OLLAMA_CUSTOM_CPU_DEFS: "-DLLAMA_AVX=on -DLLAMA_AVX2=on -DLLAMA_AVX512=on -DLLAMA_FMA=on -DLLAMA_AVX512_VBMI=on -DLLAMA_AVX512_VNNI=on"
+    # - OLLAMA_CPU_TARGET: "static cpu cpu_avx cpu_avx2"
