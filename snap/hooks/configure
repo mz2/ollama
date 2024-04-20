@@ -1,4 +1,25 @@
 #!/bin/bash
 set -e
+
+if [ -z $(snapctl get host)]; then
+    snapctl set host="127.0.0.1:11434"
+fi
+
+if [ -z $(snapctl get models)]; then
+    snapctl set models="$SNAP_COMMON/models"
+fi
+
+if [ -z $(snapctl get origins)]; then
+    snapctl set origins="*://localhost"
+fi
+
+if [ -z $(snapctl get cuda-visible-devices)]; then
+    snapctl set cuda-visible-devices=""
+fi
+
+if [ -z $(snapctl get ollama-llm-library)]; then
+    snapctl set ollama-llm-library=""
+fi
+
 snapctl stop "$SNAP_INSTANCE_NAME"
 snapctl start "$SNAP_INSTANCE_NAME"

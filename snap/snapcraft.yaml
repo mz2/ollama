@@ -82,5 +82,14 @@ parts:
       last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
       craftctl set version="$(git describe --tags | sed 's/v//')"
     override-build: |
+      apt install ./amdgpu-install_6.1.60100-1_all.deb
+      apt update
+      apt install amdgpu-dkms
+      apt install rocm
+
       go generate ./...
       craftctl default
+    build-environment:
+      - OLLAMA_CUSTOM_CPU_DEFS: "-DLLAMA_AVX=on -DLLAMA_AVX2=on -DLLAMA_AVX512=on -DLLAMA_FMA=on -DLLAMA_AVX512_VBMI=on -DLLAMA_AVX512_VNNI=on"
+      - COMMON_CPU_DEFS: "-DLLAMA_AVX=on -DLLAMA_AVX2=on -DLLAMA_AVX512=on -DLLAMA_FMA=on -DLLAMA_AVX512_VBMI=on -DLLAMA_AVX512_VNNI=on"
+      - OLLAMA_CPU_TARGET: "cpu cpu_avx cpu_avx2"

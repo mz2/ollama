@@ -94,7 +94,7 @@ if [ -z "${OLLAMA_SKIP_CPU_GENERATE}" ]; then
         # -DLLAMA_AVX512_VNNI -- 2021 Intel Alder Lake
 
         COMMON_CPU_DEFS="-DCMAKE_POSITION_INDEPENDENT_CODE=on -DLLAMA_NATIVE=off"
-        if [ -z "${OLLAMA_CPU_TARGET}" -o "${OLLAMA_CPU_TARGET}" = "cpu" ]; then
+        if [ -z "${OLLAMA_CPU_TARGET}" ] || echo "${OLLAMA_CPU_TARGET}" | grep -qw 'cpu'; then
             #
             # CPU first for the default library, set up as lowest common denominator for maximum compatibility (including Rosetta)
             #
@@ -110,7 +110,7 @@ if [ -z "${OLLAMA_SKIP_CPU_GENERATE}" ]; then
             #
             # ARM chips in M1/M2/M3-based MACs and NVidia Tegra devices do not currently support avx extensions.
             #
-            if [ -z "${OLLAMA_CPU_TARGET}" -o "${OLLAMA_CPU_TARGET}" = "cpu_avx" ]; then
+            if [ -z "${OLLAMA_CPU_TARGET}" ] || echo "${OLLAMA_CPU_TARGET}" | grep -qw 'cpu_avx'; then
                 #
                 # ~2011 CPU Dynamic library with more capabilities turned on to optimize performance
                 # Approximately 400% faster than LCD on same CPU
@@ -123,7 +123,7 @@ if [ -z "${OLLAMA_SKIP_CPU_GENERATE}" ]; then
                 compress
             fi
 
-            if [ -z "${OLLAMA_CPU_TARGET}" -o "${OLLAMA_CPU_TARGET}" = "cpu_avx2" ]; then
+            if [ -z "${OLLAMA_CPU_TARGET}" ] || echo "${OLLAMA_CPU_TARGET}" | grep -qw 'cpu_avx2'; then
                 #
                 # ~2013 CPU Dynamic library
                 # Approximately 10% faster than AVX on same CPU
